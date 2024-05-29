@@ -7,7 +7,7 @@ AGENDA = {
     },
     'meu nome2' : {
         'nome': 'meu nome',
-        'telefone': '9889988998',
+        'telefone': 'sdfgsdfg',
         'email': '@gmail.com',
         'endereco': 'Av, lacerda'
     }
@@ -16,11 +16,15 @@ AGENDA = {
 ERROS = {
     'ContatoInexistente': {
         'error': (KeyError, TypeError),
-        'resposta': 'Contato Inexistente'
+        'resposta': 'Contato Inexistente.'
     },
     'ContatoExistente': {
         'error': KeyError,
-        'resposta': 'Contato já esta na Agenda'
+        'resposta': 'Contato já esta na Agenda.'
+    },
+    'OpcaoInvalida': {
+        'error': KeyError,
+        'resposta': 'Opçao invalida!'        
     }
 }
 
@@ -33,6 +37,7 @@ def tratamento(error=Exception, resposta='Ocorreu algun erro inesperado'):
 
             try:
                 func(*args, **kwargs)
+                
             except error:
                 print(passagem)
                 print(resposta)
@@ -40,7 +45,7 @@ def tratamento(error=Exception, resposta='Ocorreu algun erro inesperado'):
 
             except Exception as er:   
                 print(passagem)
-                print(er)
+                print(f'{resposta}: {er}')
                 print(passagem)
                   
         return closure
@@ -49,6 +54,12 @@ def tratamento(error=Exception, resposta='Ocorreu algun erro inesperado'):
 
 def get_error(erro):
     return ERROS.get(erro)
+
+
+def exportar_contatos(arquivo):
+    with open('agenda.txt', mode='a', encoding='utf-8') as file:
+        file.writelines(AGENDA.values()+'\n')
+
 
 
 def criar_contato():
@@ -79,6 +90,7 @@ def editar_contato():
             novo_contato[info] = editando[info]
 
     editando.update(novo_contato)
+
 
 @tratamento(**(get_error('ContatoExistente')))
 def adicionar_contato(contato):
@@ -150,6 +162,7 @@ def opcoes_menu(opcao):
     return opcoes[opcao]()
 
 
+@tratamento(**(get_error('OpcaoInvalida')))
 def main():
     imprimir_menu()
 
