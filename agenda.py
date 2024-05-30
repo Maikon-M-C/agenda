@@ -1,17 +1,4 @@
-AGENDA = {
-    'meu nome' : {
-        'nome': 'meu nome',
-        'telefone': '9889988998',
-        'email': '@gmail.com',
-        'endereco': 'Av, lacerda'
-    },
-    'meu nome2' : {
-        'nome': 'meu nome',
-        'telefone': 'sdfgsdfg',
-        'email': '@gmail.com',
-        'endereco': 'Av, lacerda'
-    }
-}
+AGENDA = {}
 
 ERROS = {
     'ContatoInexistente': {
@@ -21,10 +8,6 @@ ERROS = {
     'ContatoExistente': {
         'error': KeyError,
         'resposta': 'Contato já esta na Agenda.'
-    },
-    'OpcaoInvalida': {
-        'error': KeyError,
-        'resposta': 'Opçao invalida!'        
     },
     'ArquivoInexistente': {
         'error': FileNotFoundError,
@@ -52,6 +35,7 @@ def tratamento(error=Exception, resposta='Ocorreu algun erro inesperado'):
                 print(PASSAGEM)
                 print(f'{resposta}: {er}')
                 print(PASSAGEM)
+
                   
         return closure
     return decorador
@@ -68,12 +52,12 @@ def exportar_contatos(arquivo):
 
 
 def criar_contato():
-    contato = {
-        'nome': input('Nome: '),
-        'telefone': input('telefone: '),
-        'email': input('email: '),
-        'endereco': input('endereço: ')
-    }
+    contato = [
+        input('Nome: '),
+        input('telefone: '),
+        input('email: '),
+        input('endereço: ')
+    ]
 
     adicionar_contato(contato)
 
@@ -100,15 +84,15 @@ def editar_contato():
 @tratamento(**(get_error('ContatoExistente')))
 def adicionar_contato(contato):
 
-    AGENDA[contato['nome']] = {
-        'nome': contato['nome'],
-        'telefone': contato['telefone'],
-        'email': contato['email'],
-        'endereco': contato['endereco']
+    AGENDA[contato[0]] = {
+        'nome': contato[0],
+        'telefone': contato[1],
+        'email': contato[2],
+        'endereco': contato[3]
     }
 
-    formatar_contato(contato)
-    print(f'>>>>> {contato['nome']} atualizado na sua lista de contatos <<<<<')
+
+    print(f'>>>>> {contato[0]} atualizado na sua lista de contatos <<<<<')
 
 
 def formatar_contato(contato):
@@ -128,7 +112,7 @@ def mostrar_todos_contatos():
 @tratamento(**(get_error('ContatoInexistente')))
 def buscar_contato():
     contato = input('Qual contato voce deseja ver: ')
-    formatar_contato(AGENDA[contato])
+    formatar_contato(AGENDA[contato]['nome'])
 
 
 @tratamento(**(get_error('ContatoInexistente')))
@@ -137,6 +121,24 @@ def remover_contato():
     AGENDA.pop(contato)
     print(f'>>>>> {contato} atualizado na sua lista de contatos <<<<<')
     print(PASSAGEM)
+
+
+@tratamento(**(get_error('ArquivoInexistente')))
+def importar_contatos():
+
+    arquivo = 'contatos'
+
+    arquivo = (input('Escolha um nome para o arquivo: ') or arquivo)
+
+    with open(f'{arquivo}.csv', mode='r', encoding='utf-8') as file:
+        file = file.readlines()
+
+        file.remove(HEADER)
+
+        for info in file:
+            info = info.strip('\n').split(',')
+
+            adicionar_contato(info)
 
 
 @tratamento(**(get_error('ArquivoInexistente')))
@@ -161,6 +163,7 @@ def imprimir_menu():
     print('4 -> Editar contato')
     print('5 -> Remover contato')
     print('6 -> Exportar contatos como csv')
+    print('7 -> Importar contatos de um arquivo csv')
     print('0 -> Salvar e sair da Agenda')
 
 
@@ -176,13 +179,14 @@ def opcoes_menu(opcao):
         '4': editar_contato,
         '5': remover_contato,
         '6': exportar_contatos,
-        '0': kill_program
+        '7': importar_contatos,
+        '0': kill_program,
+        '': main
     }
 
-    return opcoes[opcao]()
+    return opcoes[opcao if opcao in opcoes else '']()
 
 
-@tratamento(**(get_error('OpcaoInvalida')))
 def main():
     imprimir_menu()
 
