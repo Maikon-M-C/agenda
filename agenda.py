@@ -25,11 +25,16 @@ ERROS = {
     'OpcaoInvalida': {
         'error': KeyError,
         'resposta': 'Opçao invalida!'        
+    },
+    'ArquivoInexistente': {
+        'error': FileNotFoundError,
+        'resposta': 'Falha ao tentar acessar um arquivo.' 
     }
 }
 
-passagem = '='*20
+PASSAGEM = '='*20
 
+HEADER = 'nome,telefone,email,endereço\n'
 
 def tratamento(error=Exception, resposta='Ocorreu algun erro inesperado'):
     def decorador(func):
@@ -37,16 +42,16 @@ def tratamento(error=Exception, resposta='Ocorreu algun erro inesperado'):
 
             try:
                 func(*args, **kwargs)
-                
+
             except error:
-                print(passagem)
+                print(PASSAGEM)
                 print(resposta)
-                print(passagem)
+                print(PASSAGEM)
 
             except Exception as er:   
-                print(passagem)
+                print(PASSAGEM)
                 print(f'{resposta}: {er}')
-                print(passagem)
+                print(PASSAGEM)
                   
         return closure
     return decorador
@@ -107,12 +112,12 @@ def adicionar_contato(contato):
 
 
 def formatar_contato(contato):
-    print(passagem)
+    print(PASSAGEM)
     print('Nome: ', contato['nome'])
     print('Telefone: ', contato['telefone'])
     print('Email: ', contato['email'])
     print('Endereço: ', contato['endereco'])
-    print(passagem+'\n')
+    print(PASSAGEM+'\n')
 
 
 def mostrar_todos_contatos():
@@ -131,7 +136,21 @@ def remover_contato():
     contato = input('Digite o nome do contato a ser deletado: ')
     AGENDA.pop(contato)
     print(f'>>>>> {contato} atualizado na sua lista de contatos <<<<<')
-    print(passagem)
+    print(PASSAGEM)
+
+
+@tratamento(**(get_error('ArquivoInexistente')))
+def exportar_contatos():
+
+    arquivo = 'contatos'
+
+    arquivo = (input('Escolha um nome para o arquivo: ') or arquivo)
+
+    with open(f'{arquivo}.csv', mode='w', encoding='utf-8') as file:
+        file.write(HEADER)
+
+        for info in AGENDA.values():
+            file.write(f'{info['nome']},{info['telefone']},{info['email']},{info['endereco']} \n')
 
 
 def imprimir_menu():
@@ -141,8 +160,8 @@ def imprimir_menu():
     print('3 -> Incluir contato')
     print('4 -> Editar contato')
     print('5 -> Remover contato')
-
-    print('0 -> salvar e sair da Agenda')
+    print('6 -> Exportar contatos como csv')
+    print('0 -> Salvar e sair da Agenda')
 
 
 def kill_program():
@@ -156,6 +175,7 @@ def opcoes_menu(opcao):
         '3': criar_contato,
         '4': editar_contato,
         '5': remover_contato,
+        '6': exportar_contatos,
         '0': kill_program
     }
 
