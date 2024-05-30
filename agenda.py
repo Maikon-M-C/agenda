@@ -168,6 +168,7 @@ def imprimir_menu():
 
 
 def kill_program():
+    exportar_contatos()
     exit()
 
 
